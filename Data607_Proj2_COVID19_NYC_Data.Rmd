@@ -1,0 +1,718 @@
+---
+title: "Affects of COVID-19 in New York City"
+author: "Mohamed Hassan-El Serafi"
+date: "2023-03-01"
+output: html_document
+---
+
+Since the end of February 2020, Covid-19 has affected the way of life for billions of people worldwide. New York was the epicenter of the pandemic, infecting thousands, then millions of people. This dataset was taken from the Open Data NYC website, tracking Cases, Hospitalizations, and Deaths among the five boroughs of New York. I will look at the overall data of the five boroughs, while looking borough by borough to compare which borough had the most and least cases, hospitalizations and deaths. The data is from February 29, 2020 until the day this dataset was collected, February 23, 2023.
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(reshape2)
+```
+
+
+I stored the CSV raw data into a variable, df: 
+
+```{r}
+df <- read.csv("https://raw.githubusercontent.com/moham6839/Data607_Proj2_COVID19_NYC_Data/main/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv")
+```
+
+
+
+There were no NA values found in the dataset:
+
+```{r}
+sum(is.na(df))
+```
+
+
+
+I changed the column names into lowercase letters:
+
+```{r}
+names(df) <- tolower(names(df))
+```
+
+
+
+I changed the column type of date_of_interest from character to date:
+
+
+```{r}
+df$date_of_interest <- mdy(df$date_of_interest)
+```
+
+
+To get a glimpse of the total impact of Covid-19, I looked at the cases, hospitalizations, and deaths overall. I used pivot_longer for each category, and then create scatterplots. 
+
+
+# Case Count
+
+
+
+```{r}
+new_df2 <- df %>%
+  select(date_of_interest, bx_case_count, 
+         mn_case_count, bk_case_count, 
+         qn_case_count, si_case_count)
+head(new_df2)
+```
+
+
+
+```{r}
+df_total_cases <- new_df2 %>%
+  pivot_longer(cols = c(2:6), names_to = "Borough", values_to = "Number of Cases")
+head(df_total_cases)
+```
+
+
+
+
+
+
+
+
+```{r}
+ggplot(df_total_cases, aes(x=date_of_interest, y=`Number of Cases`)) +
+  geom_point() +
+  labs(title="Number of Overall Cases",
+       y="Number of Cases",
+       x="Year (2020-2023)")
+```
+
+As the plot shows, there was a significant increase in cases in 2022, reaching as high as almost 20,000 cases in a single day. This could be attributed to the Omicron variant that was highly transmissible at that time.
+
+
+# Hospitalizations
+
+
+
+```{r}
+new_df3 <- df %>%
+  select(date_of_interest, bx_hospitalized_count, 
+         mn_hospitalized_count, bk_hospitalized_count, 
+         qn_hospitalized_count, si_hospitalized_count)
+head(new_df3)
+```
+
+
+
+
+```{r}
+df_hospitalized_cases <- new_df3 %>%
+  pivot_longer(cols = c(2:6), names_to = "Borough", values_to = "Hospitalized Cases")
+head(df_hospitalized_cases)
+```
+
+
+
+```{r}
+ggplot(df_hospitalized_cases, aes(x=date_of_interest, y=`Hospitalized Cases`)) +
+  geom_point() +
+  labs(title="Number of Overall Hospitalizations",
+       y="Number of Hospitalized Cases",
+       x="Year (2020-2023)")
+```
+
+The number of people hospitalized spiked in the beginning of the pandemic, reaching as high as 600 in a single day in 2020, and spiking again at the end of 2021/beginning of 2022 to a high of close to 400 in a single day.
+
+# Death Count in NYC
+
+```{r}
+new_df4 <- df %>%
+  select(date_of_interest, bx_death_count, 
+         mn_death_count, bk_death_count, 
+         qn_death_count, si_death_count)
+head(new_df4)
+```
+
+
+
+```{r}
+df_death_count <- new_df4 %>%
+  pivot_longer(cols = c(2:6), names_to = "Borough", values_to = "Number of Deaths")
+head(df_death_count)
+```
+
+
+```{r}
+ggplot(df_death_count, aes(x=date_of_interest, y=`Number of Deaths`)) +
+  geom_point() +
+  labs(title="Number of Overall Deaths",
+       y="Number of Deaths",
+       x="Year (2020-2023)")
+```
+
+
+
+The plots of cases, hospitalizations, and deaths illustrate similar and different variations from one another. Each plot shows an increase around the end of 2020 and 2021. The levels of increases differ, with hospitalizations and deaths having significant spikes at the beginning of the pandemic and subsiding thereafter, while number of cases spiked significantly around the start of 2022, possibly due to the emergence of Omicron and also the winter weather.
+-There was a significant increase in cases in 2022, reaching as high as almost 20,000 cases in a single day. This could be attributed to the Omicron variant that was highly transmissible at that time.
+-The number of people hospitalized spiked in the beginning of the pandemic, reaching as high as 600 in a single day in 2020, and spiking again at the end of 2021/beginning of 2022 to a high of close to 400 in a single day.
+-The number of overall deaths at the beginning of the pandemic reached a high of around 200 people in a single day, as the virus took a toll on the people of New York. There were smaller spikes in deaths at the beginning of 2021 and 2022.   
+
+
+I wanted to look at the monthly data of cases, hospitalizations, and deaths, and separated the year, month, and day into different columns:
+
+```{r}
+new_df <- df %>%
+  separate(date_of_interest, into=c("Year", "Month", "Day"))
+```
+
+
+I mutated the month number into and abbreviation of the month:
+
+```{r}
+new_df <- new_df %>%
+  mutate(Month = month.abb[as.numeric(`Month`)])
+```
+
+
+With the newly transformed columns, I wanted to look at the monthly averages overall and for each borough, focusing on cases, hospitalizations and deaths
+
+
+## Case Count
+
+
+```{r}
+new_df_5_boro_cases <- new_df %>%
+  select(Year, Month, Day, bx_case_count, 
+         mn_case_count, bk_case_count, 
+         qn_case_count, si_case_count)
+head(new_df_5_boro_cases)
+```
+
+
+
+
+
+```{r}
+df_longer1 <- new_df_5_boro_cases %>%
+  pivot_longer(cols = c(4:8), names_to = "Borough", values_to = "Number of Cases")
+df_longer1
+
+knitr::kable(df_longer1, "pipe")
+```
+
+### Case Count by Month
+
+
+```{r}
+df_longer1 %>%
+  select(Borough, `Number of Cases`, Month) %>%
+  group_by(Month) %>%
+  summarise(Cases_Per_Month = round(mean(`Number of Cases`), 0)) %>%
+  ggplot(aes(x = reorder(Month, -Cases_Per_Month), y = Cases_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Cases Per Month",
+       y="Average Number of Cases",
+       x="Month")
+```
+
+
+As the barplot illustrates, the highest average number of cases occurred in December, followed closely by January.
+
+
+### Case Count Overall
+
+I looked at the average number of cases for each borough on one barplot:
+
+```{r}
+df_longer1 %>%
+  select(Borough, `Number of Cases`) %>%
+  group_by(Borough) %>%
+  summarise(Cases_Per_Borough = round(mean(`Number of Cases`), 0)) %>%
+  ggplot(aes(x = Borough, y=Cases_Per_Borough, fill=Borough)) +
+  geom_bar(stat='identity', position='dodge', width=0.5) +
+  labs(title = "Average Cases Per Borough",
+       y="Average Number of Cases",
+       x="Borough")
+```
+
+Brooklyn had the highest average of cases, followed by Queens. The lowest average of cases occurred in Staten Island.  
+
+
+
+
+
+### The Bronx Monthly Average Case Count
+
+
+
+```{r}
+bx_case_count <- df_longer1 %>%
+  select(Borough, Month, `Number of Cases`) %>%
+  filter(Borough=='bx_case_count') %>%
+  group_by(Month) %>%
+  summarise(Bx_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
+  arrange(desc(Bx_Mean_Per_Month))
+bx_case_count
+```
+
+
+
+
+```{r}
+ggplot(bx_case_count, aes(x = reorder(Month, -Bx_Mean_Per_Month), y = Bx_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Cases Per Month",
+       y="Average Number of Cases",
+       x="Month")
+```
+
+
+
+
+
+
+### Brooklyn Monthly Average Case Count
+
+```{r}
+bk_case_count <- df_longer1 %>%
+  select(Borough, Month, `Number of Cases`) %>%
+  filter(Borough=='bk_case_count') %>%
+  group_by(Month) %>%
+  summarise(Bk_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
+  arrange(desc(Bk_Mean_Per_Month))
+bk_case_count
+```
+
+
+```{r}
+ggplot(bk_case_count, aes(x = reorder(Month, -Bk_Mean_Per_Month), y = Bk_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Bk Cases Per Month",
+       y="Average Number of BkCases",
+       x="Month")
+```
+
+
+
+### Manhattan Monthly Average Case Count
+
+```{r}
+mn_case_count <- df_longer1 %>%
+  select(Borough, Month, `Number of Cases`) %>%
+  filter(Borough=='mn_case_count') %>%
+  group_by(Month) %>%
+  summarise(Mn_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
+  arrange(desc(Mn_Mean_Per_Month))
+mn_case_count
+```
+
+
+
+
+```{r}
+ggplot(mn_case_count, aes(x = reorder(Month, -Mn_Mean_Per_Month), y = Mn_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average MN Cases Per Month",
+       y="Average Number of MN Cases",
+       x="Month")
+```
+
+
+### Queens Monthly Average Case Count
+
+```{r}
+qn_case_count <- df_longer1 %>%
+  select(Borough, Month, `Number of Cases`) %>%
+  filter(Borough=='qn_case_count') %>%
+  group_by(Month) %>%
+  summarise(Qn_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
+  arrange(desc(Qn_Mean_Per_Month))
+qn_case_count
+```
+
+
+
+
+```{r}
+ggplot(qn_case_count, aes(x = reorder(Month, -Qn_Mean_Per_Month), y = Qn_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Qns Cases Per Month",
+       y="Average Number of Qns Cases",
+       x="Month")
+```
+
+
+
+
+
+
+### Staten Island Monthly Average Case Count
+
+```{r}
+si_case_count <- df_longer1 %>%
+  select(Borough, Month, `Number of Cases`) %>%
+  filter(Borough=='si_case_count') %>%
+  group_by(Month) %>%
+  summarise(SI_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
+  arrange(desc(SI_Mean_Per_Month))
+si_case_count
+```
+
+```{r}
+ggplot(si_case_count, aes(x = reorder(Month, -SI_Mean_Per_Month), y = SI_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average SI Cases Per Month",
+       y="Average Number of SI Cases",
+       x="Month")
+```
+
+
+
+
+## Hospitalizations
+
+
+```{r}
+new_df_5_boro_hospitalizations<- new_df %>%
+  select(Year, Month, Day, bx_hospitalized_count, 
+         mn_hospitalized_count, bk_hospitalized_count, 
+         qn_hospitalized_count, si_hospitalized_count)
+head(new_df_5_boro_hospitalizations)
+```
+
+
+
+
+```{r}
+df_longer2 <- new_df_5_boro_hospitalizations %>%
+  pivot_longer(cols = c(4:8), names_to = "Borough", values_to = "Hospitalized Cases")
+head(df_longer2)
+```
+
+
+
+
+
+```{r}
+df_longer2 %>%
+  select(Borough, `Hospitalized Cases`, Month) %>%
+  group_by(Month) %>%
+  summarise(Hospitalized_Per_Borough = round(mean(`Hospitalized Cases`), 0)) %>%
+  ggplot(aes(x = reorder(Month, -Hospitalized_Per_Borough), y = Hospitalized_Per_Borough)) +
+  geom_col() +
+  labs(title = "Average Hospitalized Cases Per Month",
+       y="Average Hospitalized Cases",
+       x="Month")
+```
+
+```{r}
+df_longer2 %>%
+  select(Borough, `Hospitalized Cases`) %>%
+  group_by(Borough) %>%
+  summarise(Hospitalized_Mean_Per_Borough = round(mean(`Hospitalized Cases`), 0)) %>%
+  ggplot(aes(x = Borough, y=Hospitalized_Mean_Per_Borough, fill=Borough)) +
+  geom_bar(stat='identity', position='dodge', width=0.7) +
+  labs(title = "Average Hospitalizations Per Borough",
+       y="Average Hospitalizions",
+       x="Month")
+```
+
+
+Queens had the highest average of hospitalizations, followed by Brooklyn. Staten Island had the lowest average. Even though Manhattan had a higher average amount of cases than the Bronx, the average amount of hospitalizations occurred more in the Bronx than Manhattan.
+
+
+
+
+### The Bronx Hospitalized Count
+
+```{r}
+bx_hospitalized_count <- df_longer2 %>%
+  select(Borough, Month, `Hospitalized Cases`) %>%
+  filter(Borough=='bx_hospitalized_count') %>%
+  group_by(Month) %>%
+  summarise(Bx_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
+  arrange(desc(Bx_Mean_Per_Month))
+bx_hospitalized_count
+```
+
+
+```{r}
+ggplot(bx_hospitalized_count, aes(x = reorder(Month, -Bx_Mean_Per_Month), y = Bx_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Bx Hospitalized Cases Per Month",
+       y="Average Number of Hospitalized Cases",
+       x="Month")
+```
+
+
+
+### Brooklyn Hospitalized Count
+
+```{r}
+bk_hospitalized_count <- df_longer2 %>%
+  select(Borough, Month, `Hospitalized Cases`) %>%
+  filter(Borough=='bk_hospitalized_count') %>%
+  group_by(Month) %>%
+  summarise(Bk_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
+  arrange(desc(Bk_Mean_Per_Month))
+bk_hospitalized_count
+```
+
+
+```{r}
+ggplot(bk_hospitalized_count, aes(x = reorder(Month, -Bk_Mean_Per_Month), y = Bk_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Bk Hospitalized Cases Per Month",
+       y="Average Bk Number of Hospitalized Cases",
+       x="Month")
+```
+
+
+
+### Manhattan Hospitalized Count
+
+```{r}
+mn_hospitalized_count <- df_longer2 %>%
+  select(Borough, Month, `Hospitalized Cases`) %>%
+  filter(Borough=='mn_hospitalized_count') %>%
+  group_by(Month) %>%
+  summarise(Mn_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
+  arrange(desc(Mn_Mean_Per_Month))
+mn_hospitalized_count
+```
+
+
+
+```{r}
+ggplot(mn_hospitalized_count, aes(x = reorder(Month, -Mn_Mean_Per_Month), y = Mn_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Mn Hospitalized Cases Per Month",
+       y="Average Number of Hospitalized Cases",
+       x="Month")
+```
+
+
+### Queens Hospitalized Count
+
+```{r}
+qn_hospitalized_count <- df_longer2 %>%
+  select(Borough, Month, `Hospitalized Cases`) %>%
+  filter(Borough=='qn_hospitalized_count') %>%
+  group_by(Month) %>%
+  summarise(Qn_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
+  arrange(desc(Qn_Mean_Per_Month))
+qn_hospitalized_count
+```
+
+
+```{r}
+ggplot(qn_hospitalized_count, aes(x = reorder(Month, -Qn_Mean_Per_Month), y = Qn_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Qns Hospitalized Cases Per Month",
+       y="Average Number of Hospitalized Cases",
+       x="Month")
+```
+
+
+### Staten Island Hospitalized Count
+
+```{r}
+si_hospitalized_count <- df_longer2 %>%
+  select(Borough, Month, `Hospitalized Cases`) %>%
+  filter(Borough=='si_hospitalized_count') %>%
+  group_by(Month) %>%
+  summarise(SI_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
+  arrange(desc(SI_Mean_Per_Month))
+si_hospitalized_count
+```
+
+
+```{r}
+ggplot(si_hospitalized_count, aes(x = reorder(Month, -SI_Mean_Per_Month), y = SI_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average SI Hospitalized Cases Per Month",
+       y="Average Number of Hospitalized Cases",
+       x="Month")
+```
+
+
+
+## Death Count
+
+
+```{r}
+new_df_5_boro_death_count <- new_df %>%
+  select(Year, Month, Day, bx_death_count, 
+         mn_death_count, bk_death_count, 
+         qn_death_count, si_death_count)
+head(new_df_5_boro_death_count)
+```
+
+
+```{r}
+df_longer3 <- new_df_5_boro_death_count %>%
+  pivot_longer(cols = c(4:8), names_to = "Borough", values_to = "Number of Deaths")
+df_longer3
+
+knitr:: kable(df_longer3, "pipe")
+```
+
+
+
+
+
+```{r}
+df_longer3 %>%
+  select(Borough, `Number of Deaths`, Month) %>%
+  group_by(Month) %>%
+  summarise(Deaths_Per_Borough = round(mean(`Number of Deaths`), 0)) %>%
+  ggplot(aes(x = reorder(Month, -Deaths_Per_Borough), y = Deaths_Per_Borough)) +
+  geom_col() +
+  labs(title = "Average Deaths Per Month",
+       y="Average Number of Deaths",
+       x="Month")
+```
+
+
+```{r}
+df_longer3 %>%
+  select(Borough, `Number of Deaths`) %>%
+  group_by(Borough) %>%
+  summarise(Deaths_Per_Borough = round(mean(`Number of Deaths`), 0)) %>%
+  ggplot(aes(x = Borough, y=Deaths_Per_Borough, fill=Borough)) +
+  geom_bar(stat='identity', position='dodge', width=0.5) +
+  labs(title = "Average Deaths Per Borough",
+       y="Average Number of Deaths",
+       x="Boroughs")
+```
+
+Brooklyn and Queens had the highest average of deaths among the 5 boroughs, with Staten Island having the lowest average. The Bronx had a higher average amount of deaths than Manhattan.
+
+
+
+
+
+### The Bronx Death Count
+
+
+```{r}
+bx_death_count <- df_longer3 %>%
+  select(Borough, Month, `Number of Deaths`) %>%
+  filter(Borough=='bx_death_count') %>%
+  group_by(Month) %>%
+  summarise(Bx_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
+  arrange(desc(Bx_Mean_Per_Month))
+bx_death_count
+```
+
+
+```{r}
+ggplot(bx_death_count, aes(x = reorder(Month, -Bx_Mean_Per_Month), y = Bx_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Bx Number of Deaths Per Month",
+       y="Average Number of Deaths",
+       x="Month")
+```
+
+
+
+### Brooklyn Death Count
+
+```{r}
+bk_death_count <- df_longer3 %>%
+  select(Borough, Month, `Number of Deaths`) %>%
+  filter(Borough=='bk_death_count') %>%
+  group_by(Month) %>%
+  summarise(Bk_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
+  arrange(desc(Bk_Mean_Per_Month))
+bk_death_count
+```
+
+
+
+```{r}
+ggplot(bk_death_count, aes(x = reorder(Month, -Bk_Mean_Per_Month), y = Bk_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Bk Number of Deaths Per Month",
+       y="Average Number of Deaths",
+       x="Month")
+```
+
+
+### Manhattan Death Count
+
+
+```{r}
+mn_death_count <- df_longer3 %>%
+  select(Borough, Month, `Number of Deaths`) %>%
+  filter(Borough=='mn_death_count') %>%
+  group_by(Month) %>%
+  summarise(Mn_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
+  arrange(desc(Mn_Mean_Per_Month))
+mn_death_count
+```
+
+
+```{r}
+ggplot(mn_death_count, aes(x = reorder(Month, -Mn_Mean_Per_Month), y = Mn_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Mn Number of Deaths Per Month",
+       y="Average Number of Hospitalized Cases",
+       x="Month")
+```
+
+
+### Queens Death Count
+
+```{r}
+qn_death_count <- df_longer3 %>%
+  select(Borough, Month, `Number of Deaths`) %>%
+  filter(Borough=='qn_death_count') %>%
+  group_by(Month) %>%
+  summarise(Qn_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
+  arrange(desc(Qn_Mean_Per_Month))
+qn_death_count 
+```
+
+```{r}
+ggplot(qn_death_count, aes(x = reorder(Month, -Qn_Mean_Per_Month), y = Qn_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average Qns Number of Deaths Per Month",
+       y="Average Number of Deaths",
+       x="Month")
+```
+
+
+
+
+### Staten Island Death Count
+
+```{r}
+si_death_count <- df_longer3 %>%
+  select(Borough, Month, `Number of Deaths`) %>%
+  filter(Borough=='si_death_count') %>%
+  group_by(Month) %>%
+  summarise(SI_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
+  arrange(desc(SI_Mean_Per_Month))
+si_death_count
+```
+
+
+```{r}
+ggplot(si_death_count, aes(x = reorder(Month, -SI_Mean_Per_Month), y = SI_Mean_Per_Month)) +
+  geom_col() +
+  labs(title = "Average SI Number of Deaths Per Month",
+       y="Average Number of Deaths",
+       x="Month")
+```
+
+
+# Conclusion
+
+When analyzing the monthly averages of cases, hospitalizations, and deaths for each borough, there were similarities and differences. When examining average number of cases, December or January were the highest for each borough, while October or June were the lowest. The highest average amount of hospitalizations occurred in either April or January, while the lowest averages occurred in June. When analyzing the average amounts of death in each month, April had the highest average, followed by January. At the beginning of the pandemic, there was a significant increase in deaths, which could have influenced the high averages in April for each borough. Additionally, there's a possibility that official death counts were delayed, and therefore may have been counted in April instead of March. 
+
+
+
