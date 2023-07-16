@@ -10,13 +10,14 @@ Since the end of February 2020, Covid-19 has affected the way of life for billio
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warnings=FALSE)
 ```
 
 ```{r}
 library(tidyverse)
 library(lubridate)
 library(reshape2)
+library(DT)
 ```
 
 
@@ -24,6 +25,7 @@ I stored the CSV raw data into a variable, df:
 
 ```{r}
 df <- read.csv("https://raw.githubusercontent.com/moham6839/Data607_Proj2_COVID19_NYC_Data/main/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv")
+DT::datatable(df)
 ```
 
 
@@ -64,7 +66,8 @@ new_df2 <- df %>%
   select(date_of_interest, bx_case_count, 
          mn_case_count, bk_case_count, 
          qn_case_count, si_case_count)
-head(new_df2)
+DT::datatable(new_df2)
+#head(new_df2)
 ```
 
 
@@ -72,7 +75,8 @@ head(new_df2)
 ```{r}
 df_total_cases <- new_df2 %>%
   pivot_longer(cols = c(2:6), names_to = "Borough", values_to = "Number of Cases")
-head(df_total_cases)
+DT::datatable(df_total_cases)
+#head(df_total_cases)
 ```
 
 
@@ -102,7 +106,8 @@ new_df3 <- df %>%
   select(date_of_interest, bx_hospitalized_count, 
          mn_hospitalized_count, bk_hospitalized_count, 
          qn_hospitalized_count, si_hospitalized_count)
-head(new_df3)
+DT::datatable(new_df3)
+#head(new_df3)
 ```
 
 
@@ -111,7 +116,8 @@ head(new_df3)
 ```{r}
 df_hospitalized_cases <- new_df3 %>%
   pivot_longer(cols = c(2:6), names_to = "Borough", values_to = "Hospitalized Cases")
-head(df_hospitalized_cases)
+DT::datatable(df_hospitalized_cases)
+#head(df_hospitalized_cases)
 ```
 
 
@@ -133,7 +139,8 @@ new_df4 <- df %>%
   select(date_of_interest, bx_death_count, 
          mn_death_count, bk_death_count, 
          qn_death_count, si_death_count)
-head(new_df4)
+DT::datatable(new_df4)
+#head(new_df4)
 ```
 
 
@@ -141,7 +148,8 @@ head(new_df4)
 ```{r}
 df_death_count <- new_df4 %>%
   pivot_longer(cols = c(2:6), names_to = "Borough", values_to = "Number of Deaths")
-head(df_death_count)
+DT::datatable(df_death_count)
+#head(df_death_count)
 ```
 
 
@@ -188,7 +196,8 @@ new_df_5_boro_cases <- new_df %>%
   select(Year, Month, Day, bx_case_count, 
          mn_case_count, bk_case_count, 
          qn_case_count, si_case_count)
-head(new_df_5_boro_cases)
+DT::datatable(new_df_5_boro_cases)
+#head(new_df_5_boro_cases)
 ```
 
 
@@ -200,7 +209,8 @@ df_longer1 <- new_df_5_boro_cases %>%
   pivot_longer(cols = c(4:8), names_to = "Borough", values_to = "Number of Cases")
 df_longer1
 
-knitr::kable(df_longer1, "pipe")
+DT::datatable(df_longer1)
+#knitr::kable(df_longer1, "pipe")
 ```
 
 ### Case Count by Month
@@ -255,7 +265,7 @@ bx_case_count <- df_longer1 %>%
   group_by(Month) %>%
   summarise(Bx_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
   arrange(desc(Bx_Mean_Per_Month))
-bx_case_count
+DT::datatable(bx_case_count)
 ```
 
 
@@ -283,7 +293,7 @@ bk_case_count <- df_longer1 %>%
   group_by(Month) %>%
   summarise(Bk_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
   arrange(desc(Bk_Mean_Per_Month))
-bk_case_count
+DT::datatable(bk_case_count)
 ```
 
 
@@ -291,7 +301,7 @@ bk_case_count
 ggplot(bk_case_count, aes(x = reorder(Month, -Bk_Mean_Per_Month), y = Bk_Mean_Per_Month)) +
   geom_col() +
   labs(title = "Average Bk Cases Per Month",
-       y="Average Number of BkCases",
+       y="Average Number of Bk Cases",
        x="Month")
 ```
 
@@ -306,7 +316,7 @@ mn_case_count <- df_longer1 %>%
   group_by(Month) %>%
   summarise(Mn_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
   arrange(desc(Mn_Mean_Per_Month))
-mn_case_count
+DT::datatable(mn_case_count)
 ```
 
 
@@ -330,7 +340,7 @@ qn_case_count <- df_longer1 %>%
   group_by(Month) %>%
   summarise(Qn_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
   arrange(desc(Qn_Mean_Per_Month))
-qn_case_count
+DT::datatable(qn_case_count)
 ```
 
 
@@ -358,7 +368,7 @@ si_case_count <- df_longer1 %>%
   group_by(Month) %>%
   summarise(SI_Mean_Per_Month = round(mean(`Number of Cases`))) %>%
   arrange(desc(SI_Mean_Per_Month))
-si_case_count
+DT::datatable(si_case_count)
 ```
 
 ```{r}
@@ -380,7 +390,8 @@ new_df_5_boro_hospitalizations<- new_df %>%
   select(Year, Month, Day, bx_hospitalized_count, 
          mn_hospitalized_count, bk_hospitalized_count, 
          qn_hospitalized_count, si_hospitalized_count)
-head(new_df_5_boro_hospitalizations)
+DT::datatable(new_df_5_boro_hospitalizations)
+#head(new_df_5_boro_hospitalizations)
 ```
 
 
@@ -389,7 +400,8 @@ head(new_df_5_boro_hospitalizations)
 ```{r}
 df_longer2 <- new_df_5_boro_hospitalizations %>%
   pivot_longer(cols = c(4:8), names_to = "Borough", values_to = "Hospitalized Cases")
-head(df_longer2)
+DT::datatable(df_longer2)
+#head(df_longer2)
 ```
 
 
@@ -435,7 +447,7 @@ bx_hospitalized_count <- df_longer2 %>%
   group_by(Month) %>%
   summarise(Bx_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
   arrange(desc(Bx_Mean_Per_Month))
-bx_hospitalized_count
+DT::datatable(bx_hospitalized_count)
 ```
 
 
@@ -458,7 +470,7 @@ bk_hospitalized_count <- df_longer2 %>%
   group_by(Month) %>%
   summarise(Bk_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
   arrange(desc(Bk_Mean_Per_Month))
-bk_hospitalized_count
+DT::datatable(bk_hospitalized_count)
 ```
 
 
@@ -481,7 +493,7 @@ mn_hospitalized_count <- df_longer2 %>%
   group_by(Month) %>%
   summarise(Mn_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
   arrange(desc(Mn_Mean_Per_Month))
-mn_hospitalized_count
+DT::datatable(mn_hospitalized_count)
 ```
 
 
@@ -489,7 +501,7 @@ mn_hospitalized_count
 ```{r}
 ggplot(mn_hospitalized_count, aes(x = reorder(Month, -Mn_Mean_Per_Month), y = Mn_Mean_Per_Month)) +
   geom_col() +
-  labs(title = "Average Mn Hospitalized Cases Per Month",
+  labs(title = "Average MN Hospitalized Cases Per Month",
        y="Average Number of Hospitalized Cases",
        x="Month")
 ```
@@ -504,7 +516,7 @@ qn_hospitalized_count <- df_longer2 %>%
   group_by(Month) %>%
   summarise(Qn_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
   arrange(desc(Qn_Mean_Per_Month))
-qn_hospitalized_count
+DT::datatable(qn_hospitalized_count)
 ```
 
 
@@ -526,7 +538,7 @@ si_hospitalized_count <- df_longer2 %>%
   group_by(Month) %>%
   summarise(SI_Mean_Per_Month = round(mean(`Hospitalized Cases`))) %>%
   arrange(desc(SI_Mean_Per_Month))
-si_hospitalized_count
+DT::datatable(si_hospitalized_count)
 ```
 
 
@@ -548,7 +560,8 @@ new_df_5_boro_death_count <- new_df %>%
   select(Year, Month, Day, bx_death_count, 
          mn_death_count, bk_death_count, 
          qn_death_count, si_death_count)
-head(new_df_5_boro_death_count)
+DT::datatable(new_df_5_boro_death_count)
+#head(new_df_5_boro_death_count)
 ```
 
 
@@ -557,7 +570,8 @@ df_longer3 <- new_df_5_boro_death_count %>%
   pivot_longer(cols = c(4:8), names_to = "Borough", values_to = "Number of Deaths")
 df_longer3
 
-knitr:: kable(df_longer3, "pipe")
+DT::datatable(df_longer3)
+#knitr:: kable(df_longer3, "pipe")
 ```
 
 
@@ -605,7 +619,7 @@ bx_death_count <- df_longer3 %>%
   group_by(Month) %>%
   summarise(Bx_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
   arrange(desc(Bx_Mean_Per_Month))
-bx_death_count
+DT::datatable(bx_death_count)
 ```
 
 
@@ -628,7 +642,7 @@ bk_death_count <- df_longer3 %>%
   group_by(Month) %>%
   summarise(Bk_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
   arrange(desc(Bk_Mean_Per_Month))
-bk_death_count
+DT::datatable(bk_death_count)
 ```
 
 
@@ -652,7 +666,7 @@ mn_death_count <- df_longer3 %>%
   group_by(Month) %>%
   summarise(Mn_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
   arrange(desc(Mn_Mean_Per_Month))
-mn_death_count
+DT::datatable(mn_death_count)
 ```
 
 
@@ -674,7 +688,7 @@ qn_death_count <- df_longer3 %>%
   group_by(Month) %>%
   summarise(Qn_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
   arrange(desc(Qn_Mean_Per_Month))
-qn_death_count 
+DT::datatable(qn_death_count)
 ```
 
 ```{r}
@@ -697,7 +711,7 @@ si_death_count <- df_longer3 %>%
   group_by(Month) %>%
   summarise(SI_Mean_Per_Month = round(mean(`Number of Deaths`))) %>%
   arrange(desc(SI_Mean_Per_Month))
-si_death_count
+DT::datatable(si_death_count)
 ```
 
 
